@@ -1,0 +1,15 @@
+[package]
+name = "stakker_async_await"
+version = "0.0.1"
+authors = ["Jim Peters <jim@uazu.net>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+stakker = { version = "0.2.2", path = "../stakker" }
+
+[[test]]
+name = "tests"
+path = "tests/main.rs"
+harness = false
