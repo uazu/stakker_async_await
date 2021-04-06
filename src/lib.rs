@@ -22,14 +22,18 @@
 
 use stakker::Deferrer;
 
-mod rust;
+mod futures_core;
+mod rust_std;
 mod spawn;
 
-pub use rust::{future_pull, future_pull_some, future_push, future_push_some};
-pub use spawn::{spawn, spawn_with_waker};
+pub use crate::futures_core::{
+    fwd_to_stream, fwd_to_stream_result, spawn_stream, spawn_stream_with_waker,
+};
+pub use crate::rust_std::{future_pull, future_pull_result, ret_to_future, ret_to_future_result};
+pub use spawn::{spawn_future, spawn_future_with_waker};
 use stakker::task::Task;
 
-/// Get a reference to the current `Task`
+/// Get a reference to the current task
 ///
 /// Returns a reference to the task if we're running within one, or
 /// else returns `None`.  The returned [`stakker::task::Task`] can be
@@ -39,4 +43,16 @@ use stakker::task::Task;
 /// [`stakker::task::Task`]: ../stakker/task/struct.Task.html
 pub fn current_task(deferrer: &mut Deferrer) -> Option<Task> {
     Task::from_context(deferrer)
+}
+
+/// Error representing failure of an actor
+#[derive(Debug, PartialEq, Eq)]
+pub struct ActorFail;
+
+impl std::error::Error for ActorFail {}
+
+impl std::fmt::Display for ActorFail {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Actor failure")
+    }
 }

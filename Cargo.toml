@@ -4,10 +4,24 @@ version = "0.0.1"
 authors = ["Jim Peters <jim@uazu.net>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "Stakker-based executor for Rust async/await code"
+license = "MIT/Apache-2.0"
+readme = "README.md"
+
+repository = "https://github.com/uazu/stakker_async_await"
+documentation = "https://docs.rs/stakker_async_await"
+homepage = "https://uazu.github.io/stakker"
+
+keywords = [ "actor", "runtime", "async", "executor", "stream" ]
+categories = [ "asynchronous", "concurrency", "data-structures" ]
+
+[badges]
+maintenance = { status = "actively-developed" }
 
 [dependencies]
 stakker = { version = "0.2.2", path = "../stakker" }
+futures-core = "0.3.13"
+#futures-lite = "1.11.3"
 
 [[test]]
 name = "tests"

@@ -21,7 +21,7 @@ use std::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
 /// interfaces defined in this crate.  So long as the future only ever
 /// blocks on the trait interfaces defined in this crate, everything
 /// will run fine.  If it blocks on other things then you will get a
-/// panic and need to use [`spawn_with_waker`] instead.
+/// panic and need to use [`spawn_future_with_waker`] instead.
 ///
 /// This call sets up the task and execution is deferred to the queue.
 /// The task will then automatically execute in segments (from yield
@@ -32,10 +32,11 @@ use std::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
 /// resumes the task once data becomes ready.
 ///
 /// [`current_task`]: fn.current_task.html
+/// [`spawn_future_with_waker`]: fn.spawn_future_with_waker.html
 /// [`spawn_with_waker`]: fn.spawn_with_waker.html
 /// [`stakker::Fwd`]: ../stakker/struct.Fwd.html
 /// [`stakker::Ret`]: ../stakker/struct.Ret.html
-pub fn spawn<T>(core: &mut Core, future: impl Future<Output = T> + 'static, ret: Ret<T>) {
+pub fn spawn_future<T>(core: &mut Core, future: impl Future<Output = T> + 'static, ret: Ret<T>) {
     let mut task = Task::new(
         core,
         SpawnTask {
@@ -64,7 +65,7 @@ impl<T: 'static, F: Future<Output = T>> TaskTrait for SpawnTask<T, F> {
             let waker = unsafe { Waker::from_raw(panic_rawwaker()) };
             let mut cx = Context::from_waker(&waker);
             if let Poll::Ready(v) = future.poll(&mut cx) {
-                // Projection: Safe because everything is pinned
+                // Projection: Safe because everything is pinned; does drop-in-place of future
                 let mut opt_future = unsafe { self.as_mut().map_unchecked_mut(|s| &mut s.future) };
                 opt_future.set(None);
                 // Projection: Safe because we're always treating `ret` as non-structural
@@ -112,7 +113,7 @@ fn rawwaker_panic() -> ! {
 /// this.
 ///
 /// [`stakker::Stakker::set_poll_waker`]: ../stakker/struct.Stakker.html#method.set_poll_waker
-pub fn spawn_with_waker<T>(
+pub fn spawn_future_with_waker<T>(
     _core: &mut Core,
     _future: impl Future<Output = T> + 'static,
     _ret: Ret<T>,
